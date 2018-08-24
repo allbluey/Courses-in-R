@@ -1,0 +1,165 @@
+---
+title: "Manipulação de Dados no Formato Tidy - Laboratório 1"
+output : html
+---
+
+**Q1:Instale o pacote**
+```{r, eval = FALSE}
+install.packages("pillar", repos = "http://cran.us.r-project.org", type = "win.binary")
+install.packages("tidyverse", repos = "http://cran.us.r-project.org")
+install.packages("caTools", repos = "http://cran.us.r-project.org")
+```
+
+**Q2: Carregue o pacote**
+```{r, warning = FALSE, message = FALSE}
+library(rmarkdown)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+```
+**Q3: Apresente os bancos de dados**
+
+```{r}
+glimpse(table1)
+glimpse(table2)
+glimpse(table3)
+glimpse(table4a)
+glimpse(table4b)
+```
+
+
+**Q5: Utilizando comandos do pacote dplyr, determine a taxa de ocorrencia de tuberculose para cada 10.000 pessoas.**
+
+```{r}
+table1 %>% mutate(rate=cases/population*10000)
+
+```
+
+**Q6: Apresente, utilizando comandos do pacote dplyr, o numero de casos de tuberculose por ano.**
+```{r}
+
+table1%>% group_by(year) %>% summarise(total = sum(cases))
+```
+
+**Q7: Apresente um grafico de linhas, preparado via ggplot2, apresentando a mudanca no numero de casos por pais.**
+```{r}
+theme_set(theme_bw())
+g <- ggplot(table1, aes(x= year,  y=cases, col = country)) + geom_line() + scale_x_continuous(breaks = c(1999, 1999,1999, 1999,2000))
+g + theme(legend.background = element_rect(fill="gray90", size=.5, linetype="dotted"))
+
+```
+
+**Q8: Calcule a taxa para as tabelas table2 e table4a+table4b**
+
+```{r}
+table2 %>% group_by(country, year) %>% summarise(rate=count[1]/count[2]*10000)
+
+newtable4ab <- table4a[,-1]/table4b[,-1] *10000
+newtable4ab
+
+
+```
+
+
+**Q9: Refaca o grafico da questao 7 para os dados apresentados em table2.**
+```{r}
+ggplot(table2 %>% filter(type == "cases"), aes(year,count, color = country)) + geom_line()
+
+```
+
+**Q10: Utilizando o comando gather, transforme table4a em um objeto no formato tidy. Armazene o resultado num objeto chamado  tidy4a.**
+```{r}
+
+tidy4a <- gather(table4a,key='year', value='cases',c('1999','2000'))
+```
+
+**Q11: Refaca o item 10 para o objeto table4b. Armazene o resultado num objeto chamado tidy4b.**
+```{r}
+tidy4b <- gather(table4b,key='year', value='population',c('1999','2000'))
+
+```
+
+**Q12: Combine os objetos tidy4a e tidy4b em um unico objeto, utilizando o comando left_join. Apresente uma explicacao textual sobre o que faz o referido comando.**
+
+```{r}
+left_join(tidy4a,tidy4b)
+```
+Este comando retornou todas as linhas de table4a e todas as linhas de table4b. As linhas em comum que contém os países e os anos foram combinadas, mas caso não houvesse correspodencia entre elas, o comando retornaria valores NA.
+
+**Q13: Use o comando spread para tranformar o objeto table2 em um objeto com formato tidy.**
+
+```{r}
+
+table2 %>% spread(type, count)
+```
+
+**Q14: Observe que a coluna rate do objeto table3 e um texto mostrando a fracao que formaria a taxa de casos de tuberculose. Transforme o objeto table3 em um objeto com formato tidy separando a coluna 3 em duas outras colunas: cases e population, utilizando o comando separate. Utilize o argumento convert para transformar o resultado em um objeto numerico.**
+
+```{r}
+table3 %>% separate(col= 'rate', into=c('cases','population'),convert = TRUE)
+
+```
+
+**Q15: Crie uma variavel chamada path, que armazenara o caminho completo ate os arquivos supracitados.**
+
+
+```{r, echo=FALSE}
+#path = "C:\Users\alexia\Home"
+```
+
+**Q16: Instale o pacote readr e importe cada um dos arquivos utilizando o comando read_csv de maneira apropriada. Adicione a chave  cache=TRUE na defini??o do bloco de c?digo (chunk), de forma a acelerar a importa??o dos dados em execu??es futuras do Rmd.**
+
+```{r, eval = FALSE}
+install.packages("readr")
+``` 
+
+```{r,cache = TRUE}
+library(readr)
+arqFlights = unz("flight-delays.zip", "flights.csv")
+arqAirlines = unz("flight-delays.zip", "airlines.csv")
+arqAirports = unz("flight-delays.zip", "airports.csv")
+flights = read_csv(arqFlights)
+airlines = read_csv(arqAirlines)
+airports = read_csv(arqAirports)
+
+```
+
+**Q17: Para cada m?s, qual foi o v?o (no formato ORIGEM-DESTINO, ex., ANC-SEA) que apresentou o maior atraso m?dio na chegada (ARRIVAL_DELAY)? Para realiza??o deste item, ignore todos os v?os que partiram de aeroportos cujos s?mbolos come?am com o n?mero 1. Armazene o resultado em um objeto chamado atrasos e denomine a coluna de atrasos m?dio de ATRASO**
+
+```{r}
+atrasos <- flights %>% 
+  filter(!startsWith(ORIGIN_AIRPORT, "1")) %>% 
+  unite(col = "VOO", c("ORIGIN_AIRPORT", "DESTINATION_AIRPORT"), sep = "-") %>%
+  select(MONTH, VOO, ARRIVAL_DELAY) %>%
+  group_by(MONTH, VOO) %>%
+  summarise(ATRASO = mean(ARRIVAL_DELAY, na.rm = TRUE)) %>%
+  top_n(1)
+```
+
+**Q18: Para os voos mais atrasados encontrados acima, modifique a tabela de forma a adicionar o nome completo de cada aeroporto (use o comando left_join) e também a cidade do aeroporto. Para isso, importe o arquivo airports.csv. A tabela resultante dever? ter as seguintes colunas:
+observação: sobrescreva o objeto atrasos com o resultado desta operação.**
+
+MONTH
+ORIGEM
+DESTINO
+ATRASO
+AIRPORT_ORIGEM
+CITY_ORIGEM
+AIRPORT_DESTINO
+CITY_DESTINO
+```{r}
+atrasos = atrasos %>% separate("VOO", into = c("ORIGEM", "DESTINO"))
+
+airports %>% select(IATA_CODE, AIRPORT, CITY)
+
+atrasos = left_join(atrasos, airports, by= c("ORIGEM" = "IATA_CODE"))
+atrasos = left_join(atrasos, airports, by = c("DESTINO" = "IATA_CODE"))
+
+names(atrasos) = c("MONTH", "ORIGEM", "DESTINO", "ATRASO", "AIRPORT_ORIGEM", "CITY_ORIGEM", "AIRPORT_DESTINO", "CITY_DESTINO")
+``` 
+**Q19: Apresente o resultado obtido na quest?o acima.**
+
+```{r}
+view(atrasos)
+```
+
