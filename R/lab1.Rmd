@@ -1,24 +1,26 @@
 ---
-title: "Manipulação de Dados no Formato Tidy - Laboratório 1"
-output : html
+title: "Manipulation ood Data in Tidy format/Manipulação de Dados no Formato Tidy"
+author: "Alexia"
+output: html
 ---
 
-**Q1:Instale o pacote**
+**Install the necessary packages**
 ```{r, eval = FALSE}
 install.packages("pillar", repos = "http://cran.us.r-project.org", type = "win.binary")
 install.packages("tidyverse", repos = "http://cran.us.r-project.org")
 install.packages("caTools", repos = "http://cran.us.r-project.org")
 ```
 
-**Q2: Carregue o pacote**
+**load the packages/carregue os pacotes**
 ```{r, warning = FALSE, message = FALSE}
 library(rmarkdown)
 library(tidyverse)
 library(dplyr)
 library(ggplot2)
 ```
-**Q3: Apresente os bancos de dados**
-
+**Tables produced by the Tidyverse package/Tabelas produzidas pelo pacote Tidyverse**
+*Glimpse comand by the Dplyr package. A best form of str comand.*
+*Glimpse é um comando do pacote Dplyr. Uma forma melhor de visualisar a estrurura do banco de dados*
 ```{r}
 glimpse(table1)
 glimpse(table2)
@@ -28,20 +30,30 @@ glimpse(table4b)
 ```
 
 
-**Q5: Utilizando comandos do pacote dplyr, determine a taxa de ocorrencia de tuberculose para cada 10.000 pessoas.**
+**Using commands from the dplyr package, determine a tuberculosis occurrence rate for every 10,000 people/Utilizando comandos do pacote dplyr, determine a taxa de ocorrencia de tuberculose para cada 10.000 pessoas.**
+*mutate command creates a new column in dataframe*
+*O comando mutate cria uma nova coluna no banco de dados utilizando os dados do próprio banco* 
 
 ```{r}
 table1 %>% mutate(rate=cases/population*10000)
 
 ```
 
-**Q6: Apresente, utilizando comandos do pacote dplyr, o numero de casos de tuberculose por ano.**
+**Using commands from the dplyr package, the number of tuberculosis cases per year/Utilizando comandos do pacote dplyr, o numero de casos de tuberculose por ano.**
+
+*O comando group_by() agrupa dos dados de acordo com a variável em questão*
+*O comando summarise() se utiliza de alguma função para criar uma nova coluna*
+
+* The group_by () command groups data according to the variable in question *
+* The summary command () uses some function to create a new column *
+
+
 ```{r}
 
 table1%>% group_by(year) %>% summarise(total = sum(cases))
 ```
 
-**Q7: Apresente um grafico de linhas, preparado via ggplot2, apresentando a mudanca no numero de casos por pais.**
+**Present a graph of lines, prepared via ggplot2, showing the change in the number of cases per country/Apresente um grafico de linhas, preparado via ggplot2, apresentando a mudanca no numero de casos por pais.**
 ```{r}
 theme_set(theme_bw())
 g <- ggplot(table1, aes(x= year,  y=cases, col = country)) + geom_line() + scale_x_continuous(breaks = c(1999, 1999,1999, 1999,2000))
@@ -49,7 +61,10 @@ g + theme(legend.background = element_rect(fill="gray90", size=.5, linetype="dot
 
 ```
 
-**Q8: Calcule a taxa para as tabelas table2 e table4a+table4b**
+**Calculate the rate for the tables table2 and table4a + table4b/Calcule a taxa para as tabelas table2 e table4a+table4b**
+
+*Since table2 is not in Tidy format, it took a bit of care to create the column rate *
+*Como a table2 não está em formato Tidy, foi necessário um pouco de cuidado para criar a coluna rate*
 
 ```{r}
 table2 %>% group_by(country, year) %>% summarise(rate=count[1]/count[2]*10000)
@@ -61,57 +76,73 @@ newtable4ab
 ```
 
 
-**Q9: Refaca o grafico da questao 7 para os dados apresentados em table2.**
+**Graph for table2/grafico para os dados apresentados em table2.**
 ```{r}
 ggplot(table2 %>% filter(type == "cases"), aes(year,count, color = country)) + geom_line()
 
 ```
 
-**Q10: Utilizando o comando gather, transforme table4a em um objeto no formato tidy. Armazene o resultado num objeto chamado  tidy4a.**
+**Using the gather command, transform table4a into an object in tidy format./Utilizando o comando gather, transforme table4a em um objeto no formato tidy.**
+
+*O comando gather reogarniza as colunas do banco de dado de acordo com key e value. No formato antigo de table4a, as colunas eram os anos 1999 e 2000 com os valores de cases,  com o gather chamando o argumento key de 'year', criamos uma nova coluna chamada year apenas com os anos, e com o value = 'cases', distribuimos os valores de cada ano para o seu respectivo caso*
 ```{r}
 
 tidy4a <- gather(table4a,key='year', value='cases',c('1999','2000'))
 ```
 
-**Q11: Refaca o item 10 para o objeto table4b. Armazene o resultado num objeto chamado tidy4b.**
+**The same thing for table4b/Refaca o item 10 para o objeto table4b**
 ```{r}
 tidy4b <- gather(table4b,key='year', value='population',c('1999','2000'))
 
 ```
 
-**Q12: Combine os objetos tidy4a e tidy4b em um unico objeto, utilizando o comando left_join. Apresente uma explicacao textual sobre o que faz o referido comando.**
+**Combine the tidy4a and tidy4b objects into a single object using the left_join command./Combine os objetos tidy4a e tidy4b em um unico objeto, utilizando o comando left_join.**
 
 ```{r}
 left_join(tidy4a,tidy4b)
 ```
-Este comando retornou todas as linhas de table4a e todas as linhas de table4b. As linhas em comum que contém os países e os anos foram combinadas, mas caso não houvesse correspodencia entre elas, o comando retornaria valores NA.
+* This command returned all rows of table4a and all rows of table4b. The lines in common containing the countries and years were combined, but if there was no correspondence between them, the command would return NA values. *
 
-**Q13: Use o comando spread para tranformar o objeto table2 em um objeto com formato tidy.**
+*Este comando retornou todas as linhas de table4a e todas as linhas de table4b. As linhas em comum que contém os países e os anos foram combinadas, mas caso não houvesse correspodencia entre elas, o comando retornaria valores NA.*
+
+**Using the Spread command to transform table2 object in Tidy format/Use o comando spread para tranformar o objeto table2 em um objeto com formato tidy.**
+
+*The Spread command "spreads" into columns. Putting the first argument as the variable and the second as the respective observation*
+
+*O comando Spread "espalha" em colunas. Colando o primeiro argumento como a variavel e o segundo como a respectiva observação*
 
 ```{r}
 
 table2 %>% spread(type, count)
 ```
 
-**Q14: Observe que a coluna rate do objeto table3 e um texto mostrando a fracao que formaria a taxa de casos de tuberculose. Transforme o objeto table3 em um objeto com formato tidy separando a coluna 3 em duas outras colunas: cases e population, utilizando o comando separate. Utilize o argumento convert para transformar o resultado em um objeto numerico.**
+**Note that the column rate of the table3 object and a text showing the fraction that would form the rate of tuberculosis cases. Turn the table3 object into a tidy-shaped object by separating column 3 into two other columns: cases and population, using the separate command.
+
+**Observe que a coluna rate do objeto table3 e um texto mostrando a fracao que formaria a taxa de casos de tuberculose. Transforme o objeto table3 em um objeto com formato tidy separando a coluna 3 em duas outras colunas: cases e population, utilizando o comando separate.**
+
+*The separate command separate one column into two columns. Use the convert argument to transform in numeric object*
+*O comando separate separa uma coluna em duas. Utilize o argumento convert para transformar o resultado em um objeto numerico*
 
 ```{r}
 table3 %>% separate(col= 'rate', into=c('cases','population'),convert = TRUE)
 
 ```
 
-**Q15: Crie uma variavel chamada path, que armazenara o caminho completo ate os arquivos supracitados.**
+**Install the readr package and import the files with read_csv/Instale o pacote readr e importe cada um dos arquivos utilizando o comando read_csv de maneira apropriada.**
+
+* Importing zip files without having to extract them. We use the unz command, where the first argument is the name of the zipped folder and the second argument is the name of the file you want inside the folder. Then read the file with read_csv (if it is in csv format) *
+
+* Add the cache = TRUE key in the definition of the chunk, in order to accelerate the import of the data into future Rmd executions. **
 
 
-```{r, echo=FALSE}
-#path = "C:\Users\alexia\Home"
-```
+*Importando arquivos zip sem precisar extrair. Usamos o comando unz, onde o primeiro argumento é o nome da pasta zipada e o segundo argumento é o nome do arquivo que você quer dentro da pasta. Depois leia o arquivo com read_csv(caso esteja em formato csv)*
 
-**Q16: Instale o pacote readr e importe cada um dos arquivos utilizando o comando read_csv de maneira apropriada. Adicione a chave  cache=TRUE na defini??o do bloco de c?digo (chunk), de forma a acelerar a importa??o dos dados em execu??es futuras do Rmd.**
+*Adicione a chave  cache=TRUE na definição do bloco de código (chunk), de forma a acelerar a importação dos dados em execuções futuras do Rmd.**
 
 ```{r, eval = FALSE}
 install.packages("readr")
 ``` 
+*Uma forma de ler os dados sem  precisar extrair o arquivo zip*
 
 ```{r,cache = TRUE}
 library(readr)
@@ -124,7 +155,13 @@ airports = read_csv(arqAirports)
 
 ```
 
-**Q17: Para cada m?s, qual foi o v?o (no formato ORIGEM-DESTINO, ex., ANC-SEA) que apresentou o maior atraso m?dio na chegada (ARRIVAL_DELAY)? Para realiza??o deste item, ignore todos os v?os que partiram de aeroportos cujos s?mbolos come?am com o n?mero 1. Armazene o resultado em um objeto chamado atrasos e denomine a coluna de atrasos m?dio de ATRASO**
+**For each month, what was the flight (original ORIGIN-DESTINATION, eg, ANC-SEA) that raised the average average flight (ARRIVAL_DELAY)? To perform this item, ignore all that have been deleted and the symbols have been marked with the name of one of the satellites.**
+
+*To obtain the result, within the flight file we take all the observations that begin with the command '1' with the command starsWith and filter, using '!' to inform you that these words are not in the database. With the Unite () command, we join an ORIGIN_AIRPORT AND DESTINATION_AIRPORT column in a VOO call column, the separator between the words defined in sep = "-". With the Select() command we select only as columns of interest. With group_by () we group. And finally with the Summarise() create a new column with a mean(), in this case na.rm = TRUE causes the values to be considered. Top_n (), in this case, flights with the most delays.*
+
+**Para cada mês, qual foi o voo (no formato ORIGEM-DESTINO, ex., ANC-SEA) que apresentou o maior atraso médio na chegada (ARRIVAL_DELAY)? Para realização deste item, ignore todos os voos que partiram de aeroportos cujos símbolos começam com o número 1. Armazene o resultado em um objeto chamado atrasos e denomine a coluna de atrasos m?dio de ATRASO**
+
+*Para obter o resultado, dentro do arquivo flights retiramos todas as observações que começam com '1' com o comando starsWith e filter, utilizando '!' para informar que não queremos essas observações no banco de dados. Com o comando Unite() unimos a coluna ORIGIN_AIRPORT E DESTINATION_AIRPORT em uma coluna śo chamada VOO, sendo o separador entre as palavras definido em sep = "-". Com o comando Selec() selecionamos apenas as colunas de interesse. Com o Group_by() agrupamos. E por fim com o summarise() criamos uma nova coluna com a função mean(), neste caso na.rm = TRUE faz com que os valores NA não sejam considerados (caso tenha). Top_n() retorna, neste caso, os voos com maiores atrasos.*
 
 ```{r}
 atrasos <- flights %>% 
@@ -136,8 +173,8 @@ atrasos <- flights %>%
   top_n(1)
 ```
 
-**Q18: Para os voos mais atrasados encontrados acima, modifique a tabela de forma a adicionar o nome completo de cada aeroporto (use o comando left_join) e também a cidade do aeroporto. Para isso, importe o arquivo airports.csv. A tabela resultante dever? ter as seguintes colunas:
-observação: sobrescreva o objeto atrasos com o resultado desta operação.**
+**** For the later flights found above, modify the table to add the full name of each airport (use the left_join command) and also the airport city. The result will have the columns: **
+**Para os voos mais atrasados encontrados acima, modifique a tabela de forma a adicionar o nome completo de cada aeroporto (use o comando left_join) e também a cidade do aeroporto. O resultado terá as colunas:**
 
 MONTH
 ORIGEM
@@ -147,6 +184,8 @@ AIRPORT_ORIGEM
 CITY_ORIGEM
 AIRPORT_DESTINO
 CITY_DESTINO
+
+
 ```{r}
 atrasos = atrasos %>% separate("VOO", into = c("ORIGEM", "DESTINO"))
 
@@ -157,7 +196,7 @@ atrasos = left_join(atrasos, airports, by = c("DESTINO" = "IATA_CODE"))
 
 names(atrasos) = c("MONTH", "ORIGEM", "DESTINO", "ATRASO", "AIRPORT_ORIGEM", "CITY_ORIGEM", "AIRPORT_DESTINO", "CITY_DESTINO")
 ``` 
-**Q19: Apresente o resultado obtido na quest?o acima.**
+**Result**
 
 ```{r}
 view(atrasos)
