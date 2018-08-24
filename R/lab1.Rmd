@@ -19,7 +19,9 @@ library(dplyr)
 library(ggplot2)
 ```
 **Tables produced by the Tidyverse package/Tabelas produzidas pelo pacote Tidyverse**
+
 *Glimpse comand by the Dplyr package. A best form of str comand.*
+
 *Glimpse é um comando do pacote Dplyr. Uma forma melhor de visualisar a estrurura do banco de dados*
 ```{r}
 glimpse(table1)
@@ -31,7 +33,9 @@ glimpse(table4b)
 
 
 **Using commands from the dplyr package, determine a tuberculosis occurrence rate for every 10,000 people/Utilizando comandos do pacote dplyr, determine a taxa de ocorrencia de tuberculose para cada 10.000 pessoas.**
+
 *mutate command creates a new column in dataframe*
+
 *O comando mutate cria uma nova coluna no banco de dados utilizando os dados do próprio banco* 
 
 ```{r}
@@ -63,7 +67,8 @@ g + theme(legend.background = element_rect(fill="gray90", size=.5, linetype="dot
 
 **Calculate the rate for the tables table2 and table4a + table4b/Calcule a taxa para as tabelas table2 e table4a+table4b**
 
-*Since table2 is not in Tidy format, it took a bit of care to create the column rate *
+*Since table2 is not in Tidy format, it took a bit of care to create the column rate*
+
 *Como a table2 não está em formato Tidy, foi necessário um pouco de cuidado para criar a coluna rate*
 
 ```{r}
@@ -120,7 +125,7 @@ table2 %>% spread(type, count)
 
 **Observe que a coluna rate do objeto table3 e um texto mostrando a fracao que formaria a taxa de casos de tuberculose. Transforme o objeto table3 em um objeto com formato tidy separando a coluna 3 em duas outras colunas: cases e population, utilizando o comando separate.**
 
-*The separate command separate one column into two columns. Use the convert argument to transform in numeric object*
+*The separate command separate one column into two columns. Use the convert argument to transform in numeric object.*
 *O comando separate separa uma coluna em duas. Utilize o argumento convert para transformar o resultado em um objeto numerico*
 
 ```{r}
@@ -130,14 +135,14 @@ table3 %>% separate(col= 'rate', into=c('cases','population'),convert = TRUE)
 
 **Install the readr package and import the files with read_csv/Instale o pacote readr e importe cada um dos arquivos utilizando o comando read_csv de maneira apropriada.**
 
-* Importing zip files without having to extract them. We use the unz command, where the first argument is the name of the zipped folder and the second argument is the name of the file you want inside the folder. Then read the file with read_csv (if it is in csv format) *
+*Importing zip files without having to extract them. We use the unz command, where the first argument is the name of the zipped folder and the second argument is the name of the file you want inside the folder. Then read the file with read_csv (if it is in csv format)*
 
-* Add the cache = TRUE key in the definition of the chunk, in order to accelerate the import of the data into future Rmd executions. **
+*Add the cache = TRUE key in the definition of the chunk, in order to accelerate the import of the data into future Rmd executions.*
 
 
 *Importando arquivos zip sem precisar extrair. Usamos o comando unz, onde o primeiro argumento é o nome da pasta zipada e o segundo argumento é o nome do arquivo que você quer dentro da pasta. Depois leia o arquivo com read_csv(caso esteja em formato csv)*
 
-*Adicione a chave  cache=TRUE na definição do bloco de código (chunk), de forma a acelerar a importação dos dados em execuções futuras do Rmd.**
+*Adicione a chave  cache=TRUE na definição do bloco de código (chunk), de forma a acelerar a importação dos dados em execuções futuras do Rmd.*
 
 ```{r, eval = FALSE}
 install.packages("readr")
@@ -173,7 +178,8 @@ atrasos <- flights %>%
   top_n(1)
 ```
 
-**** For the later flights found above, modify the table to add the full name of each airport (use the left_join command) and also the airport city. The result will have the columns: **
+**** For the later flights found above, modify the table to add the full name of each airport (use the left_join command) and also the airport city. The result will have the columns:**
+
 **Para os voos mais atrasados encontrados acima, modifique a tabela de forma a adicionar o nome completo de cada aeroporto (use o comando left_join) e também a cidade do aeroporto. O resultado terá as colunas:**
 
 MONTH
